@@ -6,7 +6,7 @@ interface ThemeSwitcherProps {
 }
 
 export default function ThemeSwitcher({ currentTheme, onThemeChange }: ThemeSwitcherProps) {
-  const themes: ThemeKey[] = ['spooky', 'spring', 'summer'];
+  const themes: ThemeKey[] = ['spooky', 'spring', 'summer', 'winter'];
 
   return (
     <div className="flex gap-1 p-1 bg-black/30 rounded-full" data-testid="theme-switcher">

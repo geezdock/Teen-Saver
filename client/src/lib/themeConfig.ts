@@ -1,7 +1,8 @@
 import { 
   Ghost, Sparkles, Receipt,
   Flower, Wind, CloudRain,
-  Sun, GlassWater
+  Sun, GlassWater,
+  Snowflake, Zap, Coffee
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -58,7 +59,7 @@ export interface ThemeConfig {
   colors: ThemeColors;
 }
 
-export type ThemeKey = 'spooky' | 'spring' | 'summer';
+export type ThemeKey = 'spooky' | 'spring' | 'summer' | 'winter';
 
 export const THEME_CONFIG: Record<ThemeKey, ThemeConfig> = {
   spooky: {
@@ -197,6 +198,52 @@ export const THEME_CONFIG: Record<ThemeKey, ThemeConfig> = {
       calendarDayHeader: 'text-blue-600',
       calendarLegendBorder: 'border-blue-500/50',
       calendarLegendText: 'text-gray-800',
+    }
+  },
+  winter: {
+    name: 'Winter',
+    icon: '❄️',
+    headerTitle: 'Winter Savings',
+    IconComponents: {
+      HeaderIcon: Snowflake,
+      SparkleIcon: Zap,
+      ExpenseIcon: Coffee,
+    },
+    gradient: 'linear-gradient(to bottom, #E3F2FD 0%, #90CAF9 50%, #42A5F5 100%)',
+    floatingIcons: ['❄️', '⛄', '🎿', '🏂'],
+    confetti: ['💰', '✨', '❄️', '⛄', '🎿', '🏂'],
+    calendar: {
+      saved: '⛄',
+      spent: '🌨️',
+      both: '🎿',
+      none: '❄️',
+    },
+    emptyGoalsIcon: '⛷️',
+    colors: {
+      headerText: 'text-blue-700',
+      primaryText: 'text-blue-800',
+      secondaryText: 'text-gray-700',
+      tertiaryText: 'text-cyan-600',
+      primaryBorder: 'border-cyan-400/50',
+      secondaryBorder: 'border-blue-500/50',
+      primaryBg: 'bg-white/60',
+      secondaryBg: 'bg-blue-100/50',
+      addGoal: 'bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400',
+      addGoalIcon: 'text-blue-600',
+      goalCardBorder: 'border-blue-500/50',
+      goalCardShadow: 'shadow-blue-900/20',
+      goalHeader: 'text-blue-700',
+      goalCompleteBorder: 'border-green-500/70',
+      goalCompleteShadow: 'shadow-[0_0_25px_rgba(16,185,129,0.5)]',
+      progressBar: 'bg-cyan-500',
+      buttonCustomLog: 'bg-cyan-500 hover:bg-cyan-400',
+      calendarBg: 'bg-white/60',
+      calendarBorder: 'border-cyan-400/50',
+      calendarShadow: 'shadow-cyan-900/20',
+      calendarHeader: 'text-blue-700',
+      calendarDayHeader: 'text-cyan-600',
+      calendarLegendBorder: 'border-cyan-400/50',
+      calendarLegendText: 'text-gray-700',
     }
   },
 };
