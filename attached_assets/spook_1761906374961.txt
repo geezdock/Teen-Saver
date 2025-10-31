@@ -1,0 +1,897 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import { 
+    Trash2, Plus, Ghost, Sparkles, DollarSign, MinusCircle, Receipt, // Original
+    Flower, Sun, Wind, CloudRain, GlassWater // New icons for themes
+} from 'lucide-react';
+
+// --- THEME CONFIGURATION ---
+const THEME_CONFIG = {
+  spooky: {
+    name: 'Spooky',
+    icon: '👻',
+    headerTitle: 'Spooky Savings',
+    IconComponents: {
+      HeaderIcon: Ghost,
+      SparkleIcon: Sparkles,
+      ExpenseIcon: Receipt,
+    },
+    gradient: 'linear-gradient(to bottom, #000000 0%, #301934 50%, #6A0DAD 100%)',
+    floatingIcons: ['👻', '🎃', '🧛'],
+    confetti: ['💰', '✨', '💜', '🧡', '👻', '🎃'],
+    calendar: {
+      saved: '🎃',
+      spent: '👻',
+      both: '🧛',
+      none: '💀',
+    },
+    emptyGoalsIcon: '🕸️',
+    colors: {
+      headerText: 'text-orange-500',
+      primaryText: 'text-orange-300',
+      secondaryText: 'text-orange-200',
+      tertiaryText: 'text-purple-300',
+      primaryBorder: 'border-orange-500/50',
+      secondaryBorder: 'border-purple-500/50',
+      primaryBg: 'bg-black/40',
+      secondaryBg: 'bg-purple-900/50',
+      addGoal: 'bg-gradient-to-r from-orange-600 to-purple-600 hover:from-orange-500 hover:to-purple-500',
+      addGoalIcon: 'text-orange-400',
+      goalCardBorder: 'border-purple-500/50',
+      goalCardShadow: 'shadow-purple-900/30',
+      goalHeader: 'text-orange-300',
+      goalCompleteBorder: 'border-green-500/70',
+      goalCompleteShadow: 'shadow-[0_0_25px_rgba(16,185,129,0.5)]',
+      progressBar: 'bg-orange-500',
+      buttonCustomLog: 'bg-orange-600 hover:bg-orange-500',
+      calendarBg: 'bg-black/40',
+      calendarBorder: 'border-orange-500/50',
+      calendarShadow: 'shadow-orange-900/30',
+      calendarHeader: 'text-orange-400',
+      calendarDayHeader: 'text-purple-300',
+      calendarLegendBorder: 'border-orange-600/50',
+      calendarLegendText: 'text-orange-200',
+    }
+  },
+  spring: {
+    name: 'Spring',
+    icon: '🌸',
+    headerTitle: 'Spring Savings',
+    IconComponents: {
+      HeaderIcon: Flower,
+      SparkleIcon: Wind, // 'Wind' for a fresh breeze
+      ExpenseIcon: CloudRain, // 'CloudRain' for a rainy day fund
+    },
+    gradient: 'linear-gradient(to bottom, #E0F7FA 0%, #B2EBF2 50%, #80DEEA 100%)',
+    floatingIcons: ['🌸', '🦋', '🌱', '🌷'],
+    confetti: ['💰', '✨', '🌸', '🦋', '🌱', '🌷'],
+    calendar: {
+      saved: '🌷',
+      spent: '🌧️',
+      both: '🌈',
+      none: '🌱',
+    },
+    emptyGoalsIcon: '🌼',
+    colors: {
+      headerText: 'text-green-700',
+      primaryText: 'text-green-800',
+      secondaryText: 'text-gray-700',
+      tertiaryText: 'text-pink-600',
+      primaryBorder: 'border-pink-400/50',
+      secondaryBorder: 'border-green-500/50',
+      primaryBg: 'bg-white/60',
+      secondaryBg: 'bg-green-100/50',
+      addGoal: 'bg-gradient-to-r from-pink-500 to-green-500 hover:from-pink-400 hover:to-green-400',
+      addGoalIcon: 'text-green-600',
+      goalCardBorder: 'border-green-500/50',
+      goalCardShadow: 'shadow-green-900/20',
+      goalHeader: 'text-green-700',
+      goalCompleteBorder: 'border-green-500/70',
+      goalCompleteShadow: 'shadow-[0_0_25px_rgba(16,185,129,0.5)]',
+      progressBar: 'bg-pink-500',
+      buttonCustomLog: 'bg-pink-500 hover:bg-pink-400',
+      calendarBg: 'bg-white/60',
+      calendarBorder: 'border-pink-400/50',
+      calendarShadow: 'shadow-pink-900/20',
+      calendarHeader: 'text-green-700',
+      calendarDayHeader: 'text-pink-600',
+      calendarLegendBorder: 'border-pink-400/50',
+      calendarLegendText: 'text-gray-700',
+    }
+  },
+  summer: {
+    name: 'Summer',
+    icon: '☀️',
+    headerTitle: 'Summer Savings',
+    IconComponents: {
+      HeaderIcon: Sun,
+      SparkleIcon: Sparkles, // Sparkles still works for sunshine
+      ExpenseIcon: GlassWater, // 'GlassWater' for summer drinks
+    },
+    gradient: 'linear-gradient(to bottom, #FFECB3 0%, #FFD54F 50%, #FFC107 100%)',
+    floatingIcons: ['☀️', '🌴', '🍦', '🌊'],
+    confetti: ['💰', '✨', '☀️', '🌴', '🍦', '🌊'],
+    calendar: {
+      saved: '🍦',
+      spent: '💸',
+      both: '🏖️',
+      none: '☀️',
+    },
+    emptyGoalsIcon: '🍹',
+    colors: {
+      headerText: 'text-orange-700',
+      primaryText: 'text-orange-800',
+      secondaryText: 'text-gray-800',
+      tertiaryText: 'text-blue-600',
+      primaryBorder: 'border-blue-500/50',
+      secondaryBorder: 'border-orange-500/50',
+      primaryBg: 'bg-white/50',
+      secondaryBg: 'bg-orange-100/50',
+      addGoal: 'bg-gradient-to-r from-blue-500 to-orange-500 hover:from-blue-400 hover:to-orange-400',
+      addGoalIcon: 'text-orange-600',
+      goalCardBorder: 'border-orange-500/50',
+      goalCardShadow: 'shadow-orange-900/20',
+      goalHeader: 'text-orange-700',
+      goalCompleteBorder: 'border-green-500/70',
+      goalCompleteShadow: 'shadow-[0_0_25px_rgba(16,185,129,0.5)]',
+      progressBar: 'bg-blue-500',
+      buttonCustomLog: 'bg-blue-500 hover:bg-blue-400',
+      calendarBg: 'bg-white/50',
+      calendarBorder: 'border-blue-500/50',
+      calendarShadow: 'shadow-blue-900/20',
+      calendarHeader: 'text-orange-700',
+      calendarDayHeader: 'text-blue-600',
+      calendarLegendBorder: 'border-blue-500/50',
+      calendarLegendText: 'text-gray-800',
+    }
+  },
+};
+
+// --- Theme Switcher Component ---
+const ThemeSwitcher = ({ currentThemeKey, onThemeChange }) => {
+  return (
+    <div className="flex gap-1 p-1 bg-black/30 rounded-full">
+      {Object.keys(THEME_CONFIG).map((themeKey) => {
+        const theme = THEME_CONFIG[themeKey];
+        const isSelected = currentThemeKey === themeKey;
+        return (
+          <button
+            key={themeKey}
+            onClick={() => onThemeChange(themeKey)}
+            title={theme.name}
+            className={`px-3 py-1 rounded-full text-sm font-medium transition-all flex items-center gap-1 ${isSelected ? 'bg-white/90 text-black shadow-lg' : 'text-white/70 hover:bg-white/20'}`}
+          >
+            {theme.icon}
+            <span className={isSelected ? 'block' : 'hidden sm:block'}>{theme.name}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+};
+
+// --- Floating Background Component ---
+const FloatingBackground = ({ icons }) => {
+    const iconSet = icons || ['👻', '🎃', '🧛'];
+    const count = 40;
+
+    const floatingElements = useMemo(() => {
+        return Array(count).fill().map((_, i) => ({
+            id: i,
+            emoji: iconSet[Math.floor(Math.random() * iconSet.length)],
+            style: {
+                left: `${Math.random() * 100}vw`,
+                top: `${80 + Math.random() * 30}vh`,
+                fontSize: `${20 + Math.random() * 40}px`,
+                animationDelay: `${Math.random() * 20}s`,
+                animationDuration: `${30 + Math.random() * 30}s`,
+                opacity: 0.2 + Math.random() * 0.4,
+            },
+        }));
+    }, [icons]);
+
+    return (
+        <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+            <style>
+                {`
+                @keyframes spookyFloat {
+                    0% { transform: translateY(0) rotate(0deg); opacity: 0.3; }
+                    50% { transform: translateY(-50vh) rotate(5deg); opacity: 0.5; }
+                    100% { transform: translateY(-120vh) rotate(-5deg); opacity: 0; }
+                }
+                .spooky-element {
+                    position: absolute;
+                    color: white;
+                    animation: spookyFloat infinite ease-in-out;
+                    z-index: 0;
+                }
+                `}
+            </style>
+            {floatingElements.map(el => (
+                <span key={el.id} className="spooky-element" style={{ ...el.style }}>
+                    {el.emoji}
+                </span>
+            ))}
+        </div>
+    );
+};
+// --- End Floating Background Component ---
+
+// --- Themed Calendar Component ---
+const SavingsCalendar = ({ dailyActivities, theme: themeProps }) => {
+    // Get current month and year
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+    
+    const theme = themeProps.calendar;
+    const colors = themeProps.colors;
+    const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+    const calendarDays = [];
+
+    // Add placeholders
+    for (let i = 0; i < firstDayOfMonth; i++) {
+        calendarDays.push({ type: 'empty' });
+    }
+
+    // Add actual days
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dateKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const activity = dailyActivities[dateKey];
+        
+        let emoji = theme.none;
+        let className = 'text-gray-500';
+
+        if (activity) {
+            const hasSaved = activity.saved > 0;
+            const hasSpent = activity.spent > 0;
+
+            if (hasSaved && hasSpent) {
+                emoji = theme.both;
+                className = 'text-yellow-400 bg-purple-900/50 border-yellow-400';
+            } else if (hasSaved) {
+                emoji = theme.saved;
+                className = 'text-orange-400 bg-green-900/50 border-orange-400';
+            } else if (hasSpent) {
+                emoji = theme.spent;
+                className = 'text-red-400 bg-red-900/50 border-red-400';
+            }
+        }
+        
+        calendarDays.push({ 
+            type: 'day', 
+            day: day, 
+            emoji: emoji, 
+            className: className,
+            isToday: day === now.getDate() && currentMonth === now.getMonth() && currentYear === now.getFullYear()
+        });
+    }
+
+    return (
+        <div className={`${colors.calendarBg} backdrop-blur-sm p-4 rounded-xl border-2 ${colors.calendarBorder} shadow-lg ${colors.calendarShadow} w-full max-w-sm mx-auto mt-8 mb-8`}>
+            <h3 className={`text-xl font-bold ${colors.calendarHeader} text-center mb-3`}>
+                {new Date(currentYear, currentMonth).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })} Tracker
+            </h3>
+            <div className="grid grid-cols-7 gap-1 text-center">
+                {days.map((d, i) => (
+                    <div key={i} className={`text-sm font-semibold ${colors.calendarDayHeader}`}>
+                        {d}
+                    </div>
+                ))}
+                {calendarDays.map((cell, index) => (
+                    <div key={index} className="aspect-square flex flex-col justify-center items-center text-sm p-0 rounded-lg">
+                        {cell.type === 'day' ? (
+                            <div 
+                                className={`w-full h-full flex flex-col items-center justify-center rounded-lg border-2 transition-all duration-200 ${cell.className} ${cell.isToday ? 'border-4 border-yellow-300 scale-105 shadow-xl' : 'border-transparent hover:scale-105'}`}
+                                title={cell.isToday ? "Today" : `Day ${cell.day}`}
+                            >
+                                <span className="text-base leading-none">{cell.emoji}</span>
+                                <span className="text-xs font-medium leading-none mt-0.5">{cell.day}</span>
+                            </div>
+                        ) : (
+                            <div key={index} className="w-full h-full rounded-lg bg-transparent"></div>
+                        )}
+                    </div>
+                ))}
+            </div>
+            <div className={`mt-3 pt-2 border-t ${colors.calendarLegendBorder} text-xs ${colors.calendarLegendText} flex flex-wrap justify-center gap-x-4 gap-y-1`}>
+                <p><span className="text-base">{theme.saved}</span> Saved</p>
+                <p><span className="text-base">{theme.spent}</span> Spent</p>
+                <p><span className="text-base">{theme.both}</span> Saved & Spent</p>
+                <p><span className="text-base">{theme.none}</span> No Activity</p>
+            </div>
+        </div>
+    );
+};
+// --- End Calendar Component ---
+
+
+// --- Themed Confetti Component ---
+const ConfettiCanvas = ({ emojis }) => {
+  const [pieces, setPieces] = useState([]);
+  const emojiSet = emojis || ['💰', '✨'];
+
+  useEffect(() => {
+    const newPieces = Array(150).fill().map((_, i) => ({
+      id: i,
+      emoji: emojiSet[Math.floor(Math.random() * emojiSet.length)],
+      style: {
+        left: `${Math.random() * 100}vw`,
+        top: `${-10 - Math.random() * 20}vh`,
+        animationDelay: `${Math.random() * 1}s`,
+        animationDuration: `${3 + Math.random() * 2}s`,
+        transform: `rotate(${Math.random() * 360}deg)`,
+      },
+    }));
+    setPieces(newPieces);
+  }, [emojis]);
+
+  return (
+    <div className="fixed inset-0 z-[100] pointer-events-none overflow-hidden">
+      <style>
+        {`
+          @keyframes fall {
+            0% { transform: translateY(0vh) rotate(0deg) scale(1); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(720deg) scale(0.5); opacity: 0.1; }
+          }
+          .confetti-piece {
+            position: absolute;
+            font-size: 20px;
+            opacity: 0;
+            animation: fall linear forwards;
+          }
+        `}
+      </style>
+      {pieces.map(piece => (
+        <span key={piece.id} className="confetti-piece" style={{ ...piece.style }}>
+          {piece.emoji}
+        </span>
+      ))}
+    </div>
+  );
+};
+// --- End Confetti Component ---
+
+export default function TeenSavingsTracker() {
+  const [items, setItems] = useState([]);
+  const [itemName, setItemName] = useState('');
+  const [itemPrice, setItemPrice] = useState('');
+  const [duration, setDuration] = useState('');
+  const [savedAmount, setSavedAmount] = useState('');
+  const [showForm, setShowForm] = useState(false);
+  const [confetti, setConfetti] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [lastPromptDate, setLastPromptDate] = useState('');
+  const [expenses, setExpenses] = useState([]);
+  const [savingsHistory, setSavingsHistory] = useState([]);
+  const [showExpenseForm, setShowExpenseForm] = useState(false);
+  const [expenseName, setExpenseName] = useState('');
+  const [expenseAmount, setExpenseAmount] = useState('');
+  const [showExpensesPanel, setShowExpensesPanel] = useState(false);
+  const [dailyInputAmount, setDailyInputAmount] = useState({});
+  const [theme, setTheme] = useState('spooky');
+
+  // Get current theme's configuration
+  const currentTheme = THEME_CONFIG[theme];
+  const colors = currentTheme.colors;
+  const ThemeIcons = currentTheme.IconComponents; // Get themed icons
+
+  // Fallback for window.storage
+  const storage = typeof window !== 'undefined' && window.storage ? window.storage : {
+    get: async (key) => {
+      const value = localStorage.getItem(key);
+      return value ? { value } : null;
+    },
+    set: async (key, value) => {
+      localStorage.setItem(key, value);
+    },
+  };
+
+  // --- Data Persistence Functions ---
+  const saveData = async (updates) => {
+    try {
+      const data = {
+        items: updates.items !== undefined ? updates.items : items,
+        lastPromptDate: updates.lastPromptDate !== undefined ? updates.lastPromptDate : lastPromptDate,
+        expenses: updates.expenses !== undefined ? updates.expenses : expenses,
+        savingsHistory: updates.savingsHistory !== undefined ? updates.savingsHistory : savingsHistory,
+        theme: updates.theme !== undefined ? updates.theme : theme,
+      };
+      await storage.set('savings-data', JSON.stringify(data));
+    } catch (error) {
+      console.error('Error saving data:', error);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      const result = await storage.get('savings-data');
+      if (result) {
+        const data = JSON.parse(result.value);
+        setItems(data.items || []);
+        setLastPromptDate(data.lastPromptDate || '');
+        setExpenses(data.expenses || []);
+        setSavingsHistory(data.savingsHistory || []);
+        setTheme(data.theme || 'spooky');
+      }
+    } catch (error) {
+      console.log('No saved data found or error loading data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const handleThemeChange = (newTheme) => {
+    setTheme(newTheme);
+    saveData({ theme: newTheme });
+  };
+  
+  // --- End Data Persistence Functions ---
+
+  const addItem = async () => {
+    if (itemName && itemPrice && duration) {
+      const newItem = {
+        id: Date.now(),
+        name: itemName,
+        price: parseFloat(itemPrice),
+        duration: parseInt(duration),
+        saved: parseFloat(savedAmount) || 0,
+        createdAt: new Date().toISOString()
+      };
+      const newItems = [...items, newItem];
+      setItems(newItems);
+      setItemName('');
+      setItemPrice('');
+      setDuration('');
+      setSavedAmount('');
+      setShowForm(false);
+      
+      setConfetti(true);
+      setTimeout(() => setConfetti(false), 3000); 
+
+      await saveData({ items: newItems });
+    }
+  };
+
+  const updateSaved = async (id, amount) => {
+    // ... (logic is unchanged)
+    const oldItem = items.find(item => item.id === id);
+    const floatAmount = parseFloat(amount) || 0;
+    
+    const newItems = items.map(item => 
+      item.id === id ? { ...item, saved: Math.min(floatAmount, item.price) } : item
+    );
+    setItems(newItems);
+
+    if (oldItem && floatAmount > oldItem.saved) {
+        setConfetti(true);
+        setTimeout(() => setConfetti(false), 3000);
+    }
+    await saveData({ items: newItems });
+  };
+  
+  const logContribution = async (id, contribution) => {
+    const itemToUpdate = items.find(item => item.id === id);
+    const floatContribution = parseFloat(contribution) || 0; 
+
+    if (!itemToUpdate || floatContribution <= 0) {
+        console.error("Invalid item or contribution amount (must be > 0).");
+        return;
+    }
+    const newSavedTotal = itemToUpdate.saved + floatContribution;
+    const newItems = items.map(item => 
+      item.id === id ? { ...item, saved: Math.min(newSavedTotal, item.price) } : item
+    );
+    setItems(newItems);
+
+    const today = new Date().toISOString().split('T')[0];
+    const newEntry = { date: today, amount: floatContribution, goalId: id };
+    const newHistory = [...savingsHistory, newEntry];
+    setSavingsHistory(newHistory);
+    
+    setDailyInputAmount(prev => {
+        const newState = { ...prev };
+        delete newState[id];
+        return newState;
+    });
+    
+    setConfetti(true);
+    setTimeout(() => setConfetti(false), 3000);
+
+    await saveData({ items: newItems, savingsHistory: newHistory });
+  };
+
+  const deleteItem = async (id) => {
+    const newItems = items.filter(item => item.id !== id);
+    setItems(newItems);
+    await saveData({ items: newItems });
+  };
+
+  const addExpense = async () => {
+    if (expenseName && expenseAmount && parseFloat(expenseAmount) > 0) {
+      const newExpense = {
+        id: Date.now(),
+        name: expenseName,
+        amount: parseFloat(expenseAmount),
+        date: new Date().toISOString()
+      };
+      const newExpenses = [...expenses, newExpense];
+      setExpenses(newExpenses);
+      setExpenseName('');
+      setExpenseAmount('');
+      setShowExpenseForm(false);
+      await saveData({ expenses: newExpenses });
+    } else {
+        console.warn("Expense details are incomplete or amount is zero/negative.");
+    }
+  };
+
+  const deleteExpense = async (id) => {
+    const newExpenses = expenses.filter(exp => exp.id !== id);
+    setExpenses(newExpenses);
+    await saveData({ expenses: newExpenses });
+  };
+
+  const getTotalExpenses = useMemo(() => {
+    return expenses.reduce((sum, exp) => sum + exp.amount, 0);
+  }, [expenses]);
+  
+  const dailyActivities = useMemo(() => {
+    const activities = {};
+    expenses.forEach(exp => {
+      const dateKey = exp.date.split('T')[0];
+      activities[dateKey] = activities[dateKey] || { saved: 0, spent: 0 };
+      activities[dateKey].spent += exp.amount;
+    });
+    savingsHistory.forEach(sav => {
+      const dateKey = sav.date;
+      activities[dateKey] = activities[dateKey] || { saved: 0, spent: 0 };
+      activities[dateKey].saved += sav.amount;
+    });
+    return activities;
+  }, [expenses, savingsHistory]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-orange-400 text-2xl">Loading your savings... 👻</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen relative overflow-hidden font-sans"
+         style={{ background: currentTheme.gradient }}>
+      
+      {/* 1. Floating Background Icons */}
+      <FloatingBackground icons={currentTheme.floatingIcons} />
+
+      {/* 2. Confetti */}
+      {confetti && <ConfettiCanvas emojis={currentTheme.confetti} />}
+
+      {/* 3. Expense Panel Overlay (Styling is intentionally static red) */}
+      {showExpensesPanel && (
+          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-gray-900 border-4 border-red-500/80 p-6 rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto transform transition-all shadow-[0_0_40px_rgba(255,0,0,0.4)]">
+                  {/* Panel Header */}
+                  <div className="flex justify-between items-center mb-6 border-b pb-3 border-red-500/50">
+                      <h2 className="text-3xl font-bold text-red-400 flex items-center gap-2">
+                          <ThemeIcons.ExpenseIcon className="w-6 h-6" />
+                          Expense Graveyard
+                      </h2>
+                      <button
+                          onClick={() => { setShowExpensesPanel(false); setShowExpenseForm(false); }}
+                          className="text-red-300 hover:text-white transition-colors p-2 rounded-full hover:bg-red-800/50"
+                      >
+                          <MinusCircle className="w-6 h-6" />
+                      </button>
+                  </div>
+                  {/* Total Expenses Summary */}
+                  <div className="text-center mb-6 p-4 rounded-xl bg-red-900/40 border border-red-500/50">
+                      <p className="text-sm text-red-300">Total Lost to Expenses</p>
+                      <p className="text-4xl font-extrabold text-red-400">${getTotalExpenses.toFixed(2)}</p>
+                  </div>
+
+                  {/* Toggle Add Expense Form Button */}
+                  <button
+                      onClick={() => setShowExpenseForm(!showExpenseForm)}
+                      className="w-full bg-gradient-to-r from-red-600 to-pink-600 text-white py-3 rounded-xl font-bold hover:from-red-500 hover:to-pink-500 transition-all flex items-center justify-center gap-2 mb-4 shadow-lg shadow-pink-900/50"
+                  >
+                      {showExpenseForm ? <MinusCircle className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
+                      {showExpenseForm ? 'Hide Expense Form' : 'Log New Expense'}
+                  </button>
+
+                  {/* Add Expense Form */}
+                  {showExpenseForm && (
+                      <div className="mb-6 space-y-3 p-4 bg-red-900/50 rounded-xl border border-red-500/50">
+                          <input
+                              type="text"
+                              placeholder="What did you spend money on? 💔"
+                              value={expenseName}
+                              onChange={(e) => setExpenseName(e.target.value)}
+                              className="w-full px-4 py-3 bg-red-800/50 border-2 border-red-500/50 rounded-xl text-white placeholder-red-300 focus:outline-none focus:border-red-400"
+                          />
+                          <input
+                              type="number"
+                              step="0.01"
+                              placeholder="How much? 💸"
+                              value={expenseAmount}
+                              onChange={(e) => setExpenseAmount(e.target.value)}
+                              className="w-full px-4 py-3 bg-red-800/50 border-2 border-red-500/50 rounded-xl text-white placeholder-red-300 focus:outline-none focus:border-red-400"
+                          />
+                          <button
+                              onClick={addExpense}
+                              className="w-full bg-red-600 text-white py-3 rounded-xl font-bold hover:bg-red-500 transition-all shadow-md shadow-red-900/50"
+                          >
+                              Log Expense
+                          </button>
+                      </div>
+                  )}
+
+                  {/* List of Expenses */}
+                  <h3 className="text-xl font-bold text-red-300 mb-3 border-b border-red-500/30 pb-2">Recent Spends</h3>
+                  <div className="space-y-3">
+                      {expenses.length === 0 ? (
+                          <p className="text-center text-red-300/70 py-4">No expenses tracked yet. Phew! 😅</p>
+                      ) : (
+                          expenses.slice().sort((a, b) => new Date(b.date) - new Date(a.date)).map((exp) => (
+                              <div key={exp.id} className="flex justify-between items-center p-3 bg-red-900/30 rounded-xl border border-red-700/50 hover:bg-red-900/50 transition-colors">
+                                  <div className="flex-1 min-w-0 pr-4">
+                                      <p className="text-lg font-medium text-white truncate">{exp.name}</p>
+                                      <p className="text-xs text-red-300 mt-1">
+                                          {new Date(exp.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                      </p>
+                                  </div>
+                                  <div className="flex items-center gap-3">
+                                      <span className="text-xl font-bold text-red-400 whitespace-nowrap">
+                                          -${exp.amount.toFixed(2)}
+                                      </span>
+                                      <button
+                                          onClick={() => deleteExpense(exp.id)}
+                                          className="text-red-500 hover:text-red-300 transition-colors p-1 rounded-full hover:bg-red-800/50"
+                                          title="Delete Expense"
+                                      >
+                                          <Trash2 className="w-4 h-4" />
+                                      </button>
+                                  </div>
+                              </div>
+                          ))
+                      )}
+                  </div>
+              </div>
+          </div>
+      )}
+
+
+      <div className="relative z-10">
+        {/* Menu Bar */}
+        <div className={`backdrop-blur-md border-b-2 sticky top-0 z-50 ${colors.primaryBg} ${colors.primaryBorder} ${colors.calendarShadow}`}>
+          <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <ThemeIcons.HeaderIcon className={`w-8 h-8 ${colors.addGoalIcon}`} />
+              <h1 className={`text-2xl font-bold ${colors.headerText}`}>{currentTheme.headerTitle}</h1>
+            </div>
+            <div className="flex items-center gap-2 md:gap-4">
+              <ThemeSwitcher currentThemeKey={theme} onThemeChange={handleThemeChange} />
+              <div className="text-right hidden sm:block">
+                <p className={`text-xs ${colors.tertiaryText}`}>Total Saved</p>
+                <p className={`text-xl font-bold ${colors.calendarHeader}`}>
+                  ${items.reduce((sum, item) => sum + item.saved, 0).toFixed(2)}
+                </p>
+              </div>
+              <div className="text-right hidden sm:block">
+                <p className="text-xs text-red-300">Total Expenses</p>
+                <p className="text-xl font-bold text-red-400">
+                  ${getTotalExpenses.toFixed(2)}
+                </p>
+              </div>
+              <button
+                onClick={() => setShowExpensesPanel(!showExpensesPanel)}
+                className="bg-gradient-to-r from-red-600 to-pink-600 text-white px-4 py-2 rounded-xl font-bold hover:from-red-500 hover:to-pink-500 transition-all transform hover:scale-105 flex items-center gap-2 text-sm sm:text-base"
+                title="View Expenses"
+              >
+                <ThemeIcons.ExpenseIcon className="w-5 h-5" />
+                <span className="hidden sm:block">Expenses</span>
+              </button>
+              <button
+                onClick={() => setShowForm(true)}
+                className={`text-white px-4 py-2 rounded-xl font-bold transition-all transform hover:scale-105 flex items-center gap-2 text-sm sm:text-base ${colors.addGoal}`}
+                title="Add New Goal"
+              >
+                <Plus className="w-5 h-5" />
+                <span className="hidden sm:block">Goal</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="max-w-4xl mx-auto p-6">
+          <div className="text-center mb-8 pt-8">
+            <div className="flex items-center justify-center gap-3 mb-3">
+              <ThemeIcons.HeaderIcon className={`w-10 h-10 ${colors.addGoalIcon}`} />
+              <h1 className={`text-5xl font-bold ${colors.headerText}`}>{currentTheme.headerTitle} Tracker</h1>
+              <ThemeIcons.SparkleIcon className={`w-10 h-10 ${colors.tertiaryText}`} />
+            </div>
+            <p className={`${colors.secondaryText} text-lg`}>Save up for your dream items! {currentTheme.icon}</p>
+          </div>
+          
+          {!showForm ? (
+            <button
+              onClick={() => setShowForm(true)}
+              className={`w-full mb-6 text-white py-4 rounded-2xl font-bold text-lg transition-all transform hover:scale-105 flex items-center justify-center gap-2 shadow-xl ${colors.addGoal} ${colors.goalCardShadow}`}
+            >
+              <Plus className="w-6 h-6" />
+              Add New Savings Goal
+            </button>
+          ) : (
+            <div className={`mb-6 backdrop-blur-md p-6 rounded-2xl border-2 ${colors.primaryBg} ${colors.primaryBorder} shadow-lg ${colors.calendarShadow}`}>
+              <div className="grid gap-4">
+                <input
+                  type="text"
+                  placeholder="What do you want to buy? 🛍️"
+                  value={itemName}
+                  onChange={(e) => setItemName(e.target.value)}
+                  className={`w-full px-4 py-3 border-2 rounded-xl text-white focus:outline-none ${colors.secondaryBg} ${colors.secondaryBorder} ${colors.tertiaryText} placeholder-current placeholder-opacity-70 focus:${colors.primaryBorder}`}
+                />
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="How much does it cost? 💰"
+                  value={itemPrice}
+                  onChange={(e) => setItemPrice(e.target.value)}
+                  className={`w-full px-4 py-3 border-2 rounded-xl text-white focus:outline-none ${colors.secondaryBg} ${colors.secondaryBorder} ${colors.tertiaryText} placeholder-current placeholder-opacity-70 focus:${colors.primaryBorder}`}
+                />
+                <input
+                  type="number"
+                  placeholder="How many days to save? ⏰"
+                  value={duration}
+                  onChange={(e) => setDuration(e.target.value)}
+                  className={`w-full px-4 py-3 border-2 rounded-xl text-white focus:outline-none ${colors.secondaryBg} ${colors.secondaryBorder} ${colors.tertiaryText} placeholder-current placeholder-opacity-70 focus:${colors.primaryBorder}`}
+                />
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="Already saved? (optional) 💵"
+                  value={savedAmount}
+                  onChange={(e) => setSavedAmount(e.target.value)}
+                  className={`w-full px-4 py-3 border-2 rounded-xl text-white focus:outline-none ${colors.secondaryBg} ${colors.secondaryBorder} ${colors.tertiaryText} placeholder-current placeholder-opacity-70 focus:${colors.primaryBorder}`}
+                />
+                <div className="flex gap-3">
+                  <button
+                    onClick={addItem}
+                    className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 rounded-xl font-bold hover:from-green-500 hover:to-emerald-500 transition-all transform hover:scale-[1.01]"
+                  >
+                    Add Goal 🎯
+                  </button>
+                  <button
+                    onClick={() => { setShowForm(false); setItemName(''); setItemPrice(''); setDuration(''); setSavedAmount(''); }}
+                    className="px-6 bg-red-600 text-white py-3 rounded-xl font-bold hover:bg-red-500 transition-all"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="space-y-4">
+            {items.length === 0 ? (
+              <div className={`text-center py-12 ${colors.primaryText} opacity-70 text-lg`}>
+                <span className="text-8xl block mb-4 opacity-30">{currentTheme.emptyGoalsIcon}</span>
+                No savings goals yet... Start tracking your dreams! {currentTheme.icon}
+              </div>
+            ) : (
+              items.map((item) => {
+                const percentage = Math.round((item.saved / item.price) * 100);
+                const remainingAmount = item.price - item.saved;
+                const dailyGoal = item.duration > 0 ? (item.price / item.duration) : 0; 
+                const isComplete = item.saved >= item.price;
+
+                return (
+                  <div key={item.id} className={`backdrop-blur-md p-6 rounded-2xl border-2 ${colors.primaryBg} ${isComplete ? `${colors.goalCompleteBorder} ${colors.goalCompleteShadow}` : `${colors.goalCardBorder} shadow-lg ${colors.goalCardShadow}`} transition-all hover:scale-[1.02]`}>
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex-1">
+                        <h3 className={`text-2xl font-bold ${isComplete ? 'text-green-400' : colors.goalHeader} mb-1 flex items-center gap-2`}>
+                          {item.name}
+                          {isComplete && <ThemeIcons.SparkleIcon className="w-5 h-5 text-yellow-400 animate-pulse" />}
+                        </h3>
+                        <div className={`${colors.tertiaryText} text-sm space-y-1`}>
+                          <p>Goal: ${item.price.toFixed(2)}</p>
+                          <p>Total Days: <span className={`font-semibold ${colors.secondaryText}`}>{item.duration}</span></p>
+                          <p className={`font-semibold ${isComplete ? 'text-green-300' : 'text-red-300'}`}>
+                            {isComplete ? 'Goal Achieved!' : `Remaining: $${remainingAmount.toFixed(2)}`}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => deleteItem(item.id)}
+                        className="text-red-400 hover:text-red-300 transition-colors p-2 rounded-full hover:bg-red-900/50"
+                        title="Delete Goal"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </div>
+
+                    {/* Progress Bar */}
+                    <div className={`w-full rounded-full h-3 mb-4 ${colors.secondaryBg} opacity-70`}>
+                      <div
+                        className={`h-3 rounded-full transition-all duration-700 ${isComplete ? 'bg-green-500' : colors.progressBar}`}
+                        style={{ width: `${percentage}%` }}
+                      ></div>
+                    </div>
+
+                    {/* Daily Logging Panel */}
+                    {!isComplete && (
+                      <div className={`mb-4 p-4 rounded-xl border ${colors.secondaryBg} ${colors.secondaryBorder} space-y-4`}>
+                        
+                        <p className={`text-lg font-bold ${colors.primaryText} border-b ${colors.secondaryBorder} pb-2`}>Log Daily Savings</p>
+
+                        {/* Option 1: Quick Log Target */}
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                          <div className="flex-1 text-center sm:text-left">
+                              <p className={`text-sm ${colors.tertiaryText}`}>Daily Target</p>
+                              <p className={`text-xl font-bold ${colors.primaryText}`}>${dailyGoal.toFixed(2)}</p>
+                          </div>
+                          <button
+                              onClick={() => logContribution(item.id, dailyGoal)}
+                              disabled={dailyGoal <= 0}
+                              className={`w-full sm:w-auto px-6 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${dailyGoal > 0 ? 'bg-green-600 hover:bg-green-500 text-white' : 'bg-gray-600 cursor-not-allowed opacity-50 text-white'}`}
+                          >
+                              <DollarSign className="w-5 h-5" />
+                              Log Target
+                          </button>
+                        </div>
+
+                        {/* Divider */}
+                        <div className="flex items-center" aria-hidden="true">
+                          <div className={`flex-1 border-t ${colors.secondaryBorder}`}></div>
+                          <span className={`px-3 text-sm ${colors.tertiaryText}`}>OR</span>
+                          <div className={`flex-1 border-t ${colors.secondaryBorder}`}></div>
+                        </div>
+
+                        {/* Option 2: Log Custom Amount */}
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                            <input
+                                type="number"
+                                step="0.01"
+                                placeholder="Custom amount $"
+                                value={dailyInputAmount[item.id] || ''}
+                                onChange={(e) => {
+                                    const val = e.target.value;
+                                    setDailyInputAmount(prev => ({
+                                        ...prev,
+                                        [item.id]: val
+                                    }));
+                                }}
+                                className={`flex-1 w-full px-4 py-3 border-2 rounded-xl text-white focus:outline-none ${colors.secondaryBg} ${colors.secondaryBorder} ${colors.tertiaryText} placeholder-current placeholder-opacity-70 focus:${colors.primaryBorder}`}
+                            />
+                            <button
+                                onClick={() => logContribution(item.id, dailyInputAmount[item.id] || 0)}
+                                disabled={!dailyInputAmount[item.id] || parseFloat(dailyInputAmount[item.id]) <= 0}
+                                className={`w-full sm:w-auto px-6 py-3 rounded-xl font-bold text-white transition-all flex items-center justify-center gap-2 ${colors.buttonCustomLog} disabled:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed`}
+                            >
+                                <Plus className="w-5 h-5" />
+                                Log Custom
+                            </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })
+            )}
+          </div>
+          
+          {/* --- Themed Calendar --- */}
+          <SavingsCalendar dailyActivities={dailyActivities} theme={currentTheme} />
+
+        </div>
+      </div>
+    </div>
+  );
+}
